@@ -1,0 +1,15 @@
+{
+  "name": "book-author-query-graphql",
+  "version": "1.0.0",
+  "description": "book and author graphql query app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Esa Salminen",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.5.0",
+    "graphql": "^16.0.1"
+  }
+}
