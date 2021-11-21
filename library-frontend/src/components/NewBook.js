@@ -55,8 +55,7 @@ const NewBook = (props) => {
           <input
             type='number'
             value={published}
-            onChange={({ target }) => setPublished(Number(target.value))}
-          />
+            onChange={({ target }) => setPublished(Number(target.value))}/>
         </div>
         <div>
           <input
