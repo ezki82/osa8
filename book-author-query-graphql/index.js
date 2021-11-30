@@ -87,12 +87,25 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      const book = new Book({...args})
+      // try to find existing author from db.
+      let newAuthor = await Author.findOne({ "name": args.author})
+      console.log(newAuthor)
+
+      // // if author does not exist, create new author and save it to db.
+      if (!newAuthor) {
+        newAuthor = new Author({
+          name: args.author
+        })
+        await newAuthor.save()
+      }
+
+      const book = new Book({
+        title: args.title,
+        published: args.published,
+        author: newAuthor,
+        genres: args.genres
+      })
       const newBook = await book.save()
-    
-      // if (!authors.find(a => a.name === args.author)) {
-      //   authors = authors.concat({ name: args.author})
-      // }
       return newBook
     },
     editAuthor: (root, args) => {
