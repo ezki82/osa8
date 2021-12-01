@@ -60,41 +60,41 @@ const resolvers = {
     allBooks: async (root, args) => {
       if (args.genre && args.author) {
         return await Book.find({ 
-          genres: { $in: [args.genre] }, 
-          author: { $in: [args.author] } 
-        })
+          genres: { $in: [args.genre] }
+        }).populate('author')
       }
       if (args.author) {       
-        return await Book.find({  
-          author: { $in: [args.author] } 
-        })
+        return await Book.find({
+        }).populate('author')
       }
       if (args.genre) {       
         return await Book.find({ 
           genres: { $in: [args.genre] } 
-        })
+        }).populate('author')
       }
-      return await Book.find({})
-
+      return await Book.find({}).populate('author')
     },      
     allAuthors: async () => await Author.find({})
   },
   Author: {
     name: (root) => root.name,
     born: (root) => root.born,
-    bookCount: async (root) => (await Book.find({ "author.name": root.name})).length,
+    bookCount: async (root) =>
+    {
+      const books = await Book.find({ "author.name": root.name}, {"author.name": 1})
+    }, 
     id: (root) => root.id
   },
   Mutation: {
     addBook: async (root, args) => {
       // try to find existing author from db.
       let newAuthor = await Author.findOne({ "name": args.author})
-      console.log(newAuthor)
 
       // // if author does not exist, create new author and save it to db.
       if (!newAuthor) {
         newAuthor = new Author({
-          name: args.author
+          name: args.author,
+          born: null
         })
         await newAuthor.save()
       }
@@ -105,17 +105,15 @@ const resolvers = {
         author: newAuthor,
         genres: args.genres
       })
-      const newBook = await book.save()
-      return newBook
+      return await book.save()
     },
-    editAuthor: (root, args) => {
-      const author = authors.find(a => a.name === args.name)
+    editAuthor: async (root, args) => {
+      const author = await Author.findOne({ "name": args.name})
       if (!author) {
         return null
       }
-      const editedAuthor = {...author, born: args.setBornTo}
-      authors = authors.map(a => a.name === args.name ? editedAuthor : a)
-      return editedAuthor
+      author.born = args.setBornTo
+      return await author.save()
     }
   }
 }
