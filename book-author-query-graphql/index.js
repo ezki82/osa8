@@ -59,36 +59,35 @@ const resolvers = {
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
       if (args.genre && args.author) {
-        return await Book.find({ 
+        return await Book.find({
           genres: { $in: [args.genre] }
         }).populate('author')
       }
-      if (args.author) {       
+      if (args.author) {
         return await Book.find({
         }).populate('author')
       }
-      if (args.genre) {       
-        return await Book.find({ 
-          genres: { $in: [args.genre] } 
+      if (args.genre) {
+        return await Book.find({
+          genres: { $in: [args.genre] }
         }).populate('author')
       }
       return await Book.find({}).populate('author')
-    },      
+    },
     allAuthors: async () => await Author.find({})
   },
   Author: {
     name: (root) => root.name,
     born: (root) => root.born,
-    bookCount: async (root) =>
-    {
-      const books = await Book.find({ "author.name": root.name}, {"author.name": 1})
-    }, 
+    bookCount: async (root) => {
+      const books = await Book.find({ "author.name": root.name }, { "author.name": 1 })
+    },
     id: (root) => root.id
   },
   Mutation: {
     addBook: async (root, args) => {
       // try to find existing author from db.
-      let newAuthor = await Author.findOne({ "name": args.author})
+      let newAuthor = await Author.findOne({ "name": args.author })
 
       // // if author does not exist, create new author and save it to db.
       if (!newAuthor) {
@@ -96,7 +95,13 @@ const resolvers = {
           name: args.author,
           born: null
         })
-        await newAuthor.save()
+        try {
+          await newAuthor.save()
+        } catch (error) {
+          throw new UserInputError(error.message, {
+            invalidArgs: args
+          })
+        }
       }
 
       const book = new Book({
@@ -105,15 +110,27 @@ const resolvers = {
         author: newAuthor,
         genres: args.genres
       })
-      return await book.save()
+      try {
+        return await book.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args
+        })
+      }
     },
     editAuthor: async (root, args) => {
-      const author = await Author.findOne({ "name": args.name})
+      const author = await Author.findOne({ "name": args.name })
       if (!author) {
         return null
       }
       author.born = args.setBornTo
-      return await author.save()
+      try {
+        return await author.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args
+        })
+      }
     }
   }
 }
