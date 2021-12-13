@@ -58,6 +58,9 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
+      {props.token === null ? 
+      <></> : 
+      <div>
       <h2>Set birthyear</h2>
       <form onSubmit={submit}>
         <div>
@@ -75,6 +78,7 @@ const Authors = (props) => {
         </div>
         <button type='submit'>update author</button>
       </form>
+      </div>}
     </div>
   )
 }
