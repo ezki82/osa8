@@ -12,7 +12,6 @@ const Recommend = (props) => {
   }
 
   useEffect(() => {
-    console.log('use effect 1')
     if (props.currentUser) {
       showRecommendBooks(props.currentUser.favoriteGenre)
     }
@@ -20,7 +19,6 @@ const Recommend = (props) => {
   }, [props.show])
 
   useEffect(() => {
-    console.log('use effect 2')
     if (result.data) {
       setRecommendBooks(result.data.allBooks)
     }
