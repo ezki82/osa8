@@ -9,6 +9,7 @@ import { useApolloClient } from '@apollo/client'
 const App = () => {
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState('')
   const client = useApolloClient()
 
@@ -17,10 +18,11 @@ const App = () => {
     if (token) {
       setToken(token)
     }
-  },[token])
+  }, [token, currentUser])
 
   const logout = () => {
     setToken(null)
+    setCurrentUser(null)
     localStorage.clear()
     client.resetStore()
     setPage('authors')
@@ -35,7 +37,7 @@ const App = () => {
 
   return (
     <div>
-      <div style={{color: "red", fontSize: 30}}>
+      <div style={{ color: "red", fontSize: 30 }}>
         {errorMessage}
       </div>
       <div>
@@ -48,6 +50,9 @@ const App = () => {
             <button onClick={() => setPage('recommend')}>recommend</button>
             <button onClick={logout}>logout</button>
           </>}
+        <div>
+          {currentUser !== null ? <p>{currentUser.username} logged in</p> : <></>}
+        </div>
       </div>
 
       <Authors
@@ -55,11 +60,12 @@ const App = () => {
       />
 
       <Books
-        show={page === 'books'} 
+        show={page === 'books'}
       />
 
       <Recommend
         show={page === 'recommend'}
+        currentUser={currentUser}
       />
 
       <NewBook
@@ -67,7 +73,11 @@ const App = () => {
       />
 
       <LoginForm
-        show={page === 'login'} setToken={setToken} setError={errorNotify} setPage={setPage}
+        show={page === 'login'}
+        setToken={setToken}
+        setError={errorNotify}
+        setPage={setPage}
+        setCurrentUser={setCurrentUser}
       />
     </div>
   )

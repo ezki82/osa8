@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useLazyQuery } from '@apollo/client'
 import { useMutation} from '@apollo/client'
-import { LOGIN } from '../queries'
+import { LOGIN, CURRENT_USER } from '../queries'
 
-const LoginForm = ({setError, setToken, show, setPage}) => {
+const LoginForm = ({setError, setToken, setCurrentUser, show, setPage}) => {
+  const [getCurrentUser, currentUserResult] = useLazyQuery(CURRENT_USER, {
+    onCompleted: () => setCurrentUser(currentUserResult.data.me)
+  })
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -19,6 +23,7 @@ const LoginForm = ({setError, setToken, show, setPage}) => {
     if (result.data) {
       const token = result.data.login.value
       setToken(token)
+      getCurrentUser()
       localStorage.setItem('library-user-token', token)
     }
   }, [result.data]) // eslint-disable-line
